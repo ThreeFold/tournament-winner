@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+    reverse-proxy:
+        image: jwilder/nginx-proxy:alpine
+        ports:
+            - 80:80
+            - 8000:8000
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        environment:
+            - DEBUG=true
+        networks:
+            - testt
+    # frontend:
+    #     image: node:latest
+    #     environment:
+    #         - VIRTUAL_HOST=front.nmcnew.local
+    #         - VIRTUAL_PORT=3000
+    #     builds: ./tournament-winner-ui
+    #     volumes:
+    #     - ./tournament-winner-ui/:/var/www/html/app
+    backend:
+        container_name: backend
+        image: denoland/deno:alpine
+        restart: always
+        build: ./tournament-winner
+        links:
+            - "db:database"
+        environment:
+            - HOST=0.0.0.0
+            - VIRTUAL_PATH=/api
+            - VIRTUAL_PORT=8000
+        networks:
+            - testt
+    db:
+        image: postgres:alpine
+        restart: always
+        ports:
+            - "5438:5432"
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+networks:
+    testt: {}
