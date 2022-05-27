@@ -31,6 +31,16 @@ app.addEventListener("listen", ({ hostname, port, secure }) => {
     }:${port}`,
   );
 });
+app.use( async (ctx, next) => {
+  await next();
+  console.log(ctx.request.url);
+
+});
 app.use(router.routes());
 app.use(router.allowedMethods());
-await app.listen({port:8080});
+
+//setup default environment controls
+const port = 8000;
+await app.listen({
+  port:port
+});
